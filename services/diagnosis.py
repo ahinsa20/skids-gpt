@@ -105,9 +105,10 @@ class DiagnosisService:
             }
             file = self.db.getItemByKey(os.getenv("SCREENING_TABLE"), queryParams)
 
-            if file is None:
+            if (file is None or file == []):
                 return {"status": 400, "message": "report not found"}
 
+            file = file[0]
             if isinstance(file, str):
                 file = loads(file)
 
@@ -170,9 +171,10 @@ class DiagnosisService:
                 }
             }
             file = self.db.getItemByKey(os.getenv("SCREENING_TABLE"), queryParams)
-            if file is None:
+            if (file is None or file == []):
                 return {"status": 400, "message": "report not found"}
 
+            file = file[0]
             # file = open("./dynamoRecords/"+fileMap[body["screeningId"]], "r").read()
             file["createdAt"] = file["createdAt"].replace(".", ":")
             file["dentalAssessment"]["DMFTIndex"] = str(file["dentalAssessment"]["DMFTIndex"])
@@ -216,10 +218,11 @@ class DiagnosisService:
             logging.exception(e)
             return {"status": 400, "message": str(e)}
 
-    def getAllQNA(self):
+    def getAllQNA(self, screeningId):
         try:
 
             items = self.db.getAllItems(os.getenv("QNA_TABLE"))
+            items = list(filter((lambda x: x["screeningId"] == screeningId), items))
 
             for index in range(len(items)):
                 items[index] = self.removeKeys(items[index])
@@ -243,9 +246,47 @@ class DiagnosisService:
             }
             item= self.db.getItemByKey(os.getenv("QNA_TABLE"), queryParams)
 
-            if item is None:
+            if (item is None or item == []):
                 return {"status": 400, "message": "question not found"}
+            
+            item = item[0]
+            item = self.removeKeys(item)
+            return {"status": 200, "message": "Success", "response": item}
 
+        except Exception as e:
+            return {"status": 400, "message": str(e)}
+    
+    def getAllDiagnosisSummary(self, screeningId):
+        try:
+
+            items = self.db.getAllItems(os.getenv("SUMMARY_TABLE"))
+            items = list(filter((lambda x: x["screeningId"] == screeningId), items))
+
+            for index in range(len(items)):
+                items[index] = self.removeKeys(items[index])
+
+            return {"status": 200, "message": "Success", "response": items}
+
+        except Exception as e:
+            return {"status": 400, "message": str(e)}
+
+    def getDiagnosisSummaryById(self, reportId):
+        try:
+
+            queryParams = {
+                'KeyConditionExpression': '#id = :id',
+                'ExpressionAttributeNames': {
+                    '#id': 'id'
+                },
+                'ExpressionAttributeValues': {
+                    ':id': reportId
+                }
+            }
+            item = self.db.getItemByKey(os.getenv("SUMMARY_TABLE"), queryParams)
+            if (item is None or item == []):
+                return {"status": 400, "message": "report not found"}
+
+            item = item[0]
             item = self.removeKeys(item)
             return {"status": 200, "message": "Success", "response": item}
 

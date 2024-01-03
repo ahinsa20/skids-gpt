@@ -34,7 +34,7 @@ class DynamoDB:
         table = self.connectToTable(tableName)
         response = table.query(**queryParams)
         if "Items" in response:
-            return response.get("Items")[0]
+            return response.get("Items", None)
         return response.get('Item', None)
 
     def updateFeedback(self, tableName, feedbackId, feedback):

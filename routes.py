@@ -12,6 +12,8 @@ class Routes:
     def initialize(self):
         # diagnosis api
         self.app.add_url_rule("/api/v1/diagnosis/getSummary", methods=["POST"], view_func=self.diagnosis.getDiagnosisSummary)
+        self.app.add_url_rule("/api/v1/diagnosis/getAllSummary", methods=["POST"], view_func=self.diagnosis.getAllDiagnosisSummary)
+        self.app.add_url_rule("/api/v1/diagnosis/getSummaryById", methods=["POST"], view_func=self.diagnosis.getDiagnosisSummaryById)
         self.app.add_url_rule("/api/v1/diagnosis/ask", methods=["POST"], view_func=self.diagnosis.getDiagnosisQNA)
         self.app.add_url_rule("/api/v1/qna/getAll", methods=["POST"], view_func=self.diagnosis.getAllQna)
         self.app.add_url_rule("/api/v1/qna/getById", methods=["POST"], view_func=self.diagnosis.getQnaById)

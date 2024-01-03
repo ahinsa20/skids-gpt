@@ -26,6 +26,43 @@ class DiagnosisController:
 
         except Exception as e:
             return make_response(jsonify({'status': 400, 'message': str(e)}), 400)
+    
+    def getAllDiagnosisSummary(self):
+        
+        resp = self.auth.authenticate(request.headers)
+        if resp["status"] == 401: return make_response(jsonify(resp), 401)
+        try:
+
+            if "screeningId" not in request.json:
+                return make_response(jsonify({"status": 400, "message": "screeningId is required"}), 400)
+
+            if request.json["screeningId"] == "":
+                return make_response(jsonify({"status": 400, "message": "screeningId is required"}), 400)
+
+            response = self.diagnosis.getAllDiagnosisSummary(request.json["screeningId"])
+            return make_response(jsonify(response), response["status"])
+
+        except Exception as e:
+            return make_response(jsonify({'status': 400, 'message': str(e)}), 400)
+    
+    def getDiagnosisSummaryById(self):
+
+        resp = self.auth.authenticate(request.headers)
+        if resp["status"] == 401: return make_response(jsonify(resp), 401)
+        try:
+
+            if "reportId" not in request.json:
+                return make_response(jsonify({"status": 400, "message": "reportId is required"}), 400)
+
+            if request.json["reportId"] == "":
+                return make_response(jsonify({"status": 400, "message": "reportId is required"}), 400)
+
+            response = self.diagnosis.getDiagnosisSummaryById(request.json["reportId"])
+            return make_response(jsonify(response), response["status"])
+
+        except Exception as e:
+            return make_response(jsonify({'status': 400, 'message': str(e)}), 400)
+
 
     def getDiagnosisQNA(self):
 
@@ -55,7 +92,13 @@ class DiagnosisController:
         if resp["status"] == 401: return make_response(jsonify(resp), 401)
         try:
 
-            response = self.diagnosis.getAllQNA()
+            if "screeningId" not in request.json:
+                return make_response(jsonify({"status": 400, "message": "screeningId is required"}), 400)
+
+            if request.json["screeningId"] == "":
+                return make_response(jsonify({"status": 400, "message": "screeningId is required"}), 400)
+
+            response = self.diagnosis.getAllQNA(request.json["screeningId"])
             return make_response(jsonify(response), response["status"])
 
         except Exception as e:

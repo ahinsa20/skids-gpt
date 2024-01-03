@@ -39,7 +39,13 @@ class FeedbackController:
         if resp["status"] == 401: return make_response(jsonify(resp), 401)
         try:
 
-            response = self.feedback.getAllFeedback()
+            if "qnaId" not in request.json:
+                return make_response(jsonify({"status": 400, "message": "qnaId is required"}), 400)
+
+            if request.json["qnaId"] == "":
+                return make_response(jsonify({"status": 400, "message": "qnaId is required"}), 400)
+
+            response = self.feedback.getAllFeedback(request.json["qnaId"])
             return make_response(jsonify(response), response["status"])
 
         except Exception as e:

@@ -52,10 +52,11 @@ class FeedbackService:
         except Exception as e:
             return {"status": 400, "message": str(e)}
 
-    def getAllFeedback(self):
+    def getAllFeedback(self, qnaId):
         try:
 
             items = self.db.getAllItems(os.getenv("FEEDBACK_TABLE"))
+            items = list(filter((lambda x: x["qnaId"] == qnaId if "qnaId" in x else x), items))
 
             for index in range(len(items)):
                 print(items[index], flush=True)
@@ -82,9 +83,10 @@ class FeedbackService:
 
             item = self.db.getItemByKey(os.getenv("FEEDBACK_TABLE"), queryParams)
             
-            if item is None:
+            if (item is None or item == []):
                 return {"status": 400, "message": "feedback not found"}
-            
+
+            item = item[0]
             item = self.removeKeys(item)
             item["feedback"] = str(item["feedback"])
             return {"status": 200, "message": "Success", "response": item}

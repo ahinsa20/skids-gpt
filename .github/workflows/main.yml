@@ -90,6 +90,7 @@ jobs:
                             --build-arg SCREENING_TABLE=$SCREENING_TABLE \
                             --build-arg DEPLOYMENT_NAME=$DEPLOYMENT_NAME \
                             --build-arg AWS_BUCKET_NAME=$AWS_BUCKET_NAME \
+                            --build-arg AWS_REGION=$AWS_REGION \
                             --build-arg OPENAI_API_VERSION=$OPENAI_API_VERSION \
                             --build-arg OPENAI_API_KEY=$OPENAI_API_KEY \
                             --build-arg OPENAI_API_BASE=$OPENAI_API_BASE \

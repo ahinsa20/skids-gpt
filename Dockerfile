@@ -12,6 +12,7 @@ ARG AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
 ARG OPENAI_API_VERSION=${OPENAI_API_VERSION} 
 ARG OPENAI_API_KEY=${OPENAI_API_KEY} 
 ARG OPENAI_API_BASE=${OPENAI_API_BASE}
+ARG AWS_REGION=${AWS_REGION}
 
 ENV QNA_TABLE=${QNA_TABLE} 
 ENV SUMMARY_TABLE=${SUMMARY_TABLE} 
@@ -24,14 +25,13 @@ ENV AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
 ENV OPENAI_API_VERSION=${OPENAI_API_VERSION} 
 ENV OPENAI_API_KEY=${OPENAI_API_KEY} 
 ENV OPENAI_API_BASE=${OPENAI_API_BASE}
+ENV AWS_REGION=${AWS_REGION}
 
 
 RUN apt-get update
-RUN apt-get install -y default-jdk
 RUN apt-get install -y poppler-utils
-RUN apt-get install -y ghostscript
 RUN apt-get install -y python3-pip
-RUN apt-get install -y tesseract-ocr
+
 # Install gunicorn
 RUN pip install gunicorn
 

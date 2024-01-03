@@ -82,7 +82,7 @@ jobs:
         # Build a docker container and
         # push it to ECR so that it can
         # be deployed to ECS.
-        docker build --build-arg QNA_TABLE=$QNA_TABLE
+        docker buildx build --build-arg QNA_TABLE=$QNA_TABLE
                      --build-arg SUMMARY_TABLE=$SUMMARY_TABLE
                      --build-arg OPENAI_API_TYPE=$OPENAI_API_TYPE
                      --build-arg FEEDBACK_TABLE=$FEEDBACK_TABLE

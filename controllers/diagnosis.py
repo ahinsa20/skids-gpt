@@ -6,13 +6,13 @@ from flask import request, make_response, jsonify
 class DiagnosisController:
     
     def __init__(self) -> None:
-        # self.auth = Authentication()
+        self.auth = Authentication()
         self.diagnosis = DiagnosisService()
 
     def getDiagnosisSummary(self):
         
-        # resp = self.auth.authenticate(request.headers)
-        # if resp["status"] == 401: return make_response(jsonify(resp), 401)
+        resp = self.auth.authenticate(request.headers)
+        if resp["status"] == 401: return make_response(jsonify(resp), 401)
         try:
 
             if "screeningId" not in request.json:
@@ -29,8 +29,8 @@ class DiagnosisController:
 
     def getDiagnosisQNA(self):
 
-        # resp = self.auth.authenticate(request.headers)
-        # if resp["status"] == 401: return make_response(jsonify(resp), 401)
+        resp = self.auth.authenticate(request.headers)
+        if resp["status"] == 401: return make_response(jsonify(resp), 401)
         try:
 
             keys = ["screeningId", "userQuery"]
@@ -51,8 +51,8 @@ class DiagnosisController:
 
     def getAllQna(self):
 
-        # resp = self.auth.authenticate(request.headers)
-        # if resp["status"] == 401: return make_response(jsonify(resp), 401)
+        resp = self.auth.authenticate(request.headers)
+        if resp["status"] == 401: return make_response(jsonify(resp), 401)
         try:
 
             response = self.diagnosis.getAllQNA()
@@ -63,8 +63,8 @@ class DiagnosisController:
 
     def getQnaById(self):
 
-        # resp = self.auth.authenticate(request.headers)
-        # if resp["status"] == 401: return make_response(jsonify(resp), 401)
+        resp = self.auth.authenticate(request.headers)
+        if resp["status"] == 401: return make_response(jsonify(resp), 401)
         try:
 
             if "qnaId" not in request.json:

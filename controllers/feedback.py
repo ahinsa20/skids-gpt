@@ -6,13 +6,13 @@ from flask import request, make_response, jsonify
 class FeedbackController:
     
     def __init__(self) -> None:
-        # self.auth = Authentication()
+        self.auth = Authentication()
         self.feedback = FeedbackService()
 
     def addFeedback(self):
 
-        # resp = self.auth.authenticate(request.headers)
-        # if resp["status"] == 401: return make_response(jsonify(resp), 401)
+        resp = self.auth.authenticate(request.headers)
+        if resp["status"] == 401: return make_response(jsonify(resp), 401)
         try:
 
             if "qnaId" not in request.json:
@@ -35,8 +35,8 @@ class FeedbackController:
 
     def getAllFeedback(self):
 
-        # resp = self.auth.authenticate(request.headers)
-        # if resp["status"] == 401: return make_response(jsonify(resp), 401)
+        resp = self.auth.authenticate(request.headers)
+        if resp["status"] == 401: return make_response(jsonify(resp), 401)
         try:
 
             response = self.feedback.getAllFeedback()
@@ -47,8 +47,8 @@ class FeedbackController:
     
     def getFeedbackById(self):
 
-        # resp = self.auth.authenticate(request.headers)
-        # if resp["status"] == 401: return make_response(jsonify(resp), 401)
+        resp = self.auth.authenticate(request.headers)
+        if resp["status"] == 401: return make_response(jsonify(resp), 401)
         try:
 
             if "feedbackId" not in request.json:
@@ -65,8 +65,8 @@ class FeedbackController:
 
     def editFeedback(self):
 
-        # resp = self.auth.authenticate(request.headers)
-        # if resp["status"] == 401: return make_response(jsonify(resp), 401)
+        resp = self.auth.authenticate(request.headers)
+        if resp["status"] == 401: return make_response(jsonify(resp), 401)
         try:
 
             if "feedbackId" not in request.json:

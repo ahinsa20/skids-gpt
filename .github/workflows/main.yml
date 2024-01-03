@@ -82,20 +82,21 @@ jobs:
         # Build a docker container and
         # push it to ECR so that it can
         # be deployed to ECS.
-        docker buildx build --build-arg QNA_TABLE=$QNA_TABLE
-                     --build-arg SUMMARY_TABLE=$SUMMARY_TABLE
-                     --build-arg OPENAI_API_TYPE=$OPENAI_API_TYPE
-                     --build-arg FEEDBACK_TABLE=$FEEDBACK_TABLE
-                     --build-arg OBJECT_KEY=$OBJECT_KEY
-                     --build-arg SCREENING_TABLE=$SCREENING_TABLE
-                     --build-arg DEPLOYMENT_NAME=$DEPLOYMENT_NAME
-                     --build-arg AWS_BUCKET_NAME=$AWS_BUCKET_NAME
-                     --build-arg OPENAI_API_VERSION=$OPENAI_API_VERSION
-                     --build-arg OPENAI_API_KEY=$OPENAI_API_KEY
-                     --build-arg OPENAI_API_BASE=$OPENAI_API_BASE
-                     -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker buildx build --build-arg QNA_TABLE=$QNA_TABLE \
+                            --build-arg SUMMARY_TABLE=$SUMMARY_TABLE \
+                            --build-arg OPENAI_API_TYPE=$OPENAI_API_TYPE \
+                            --build-arg FEEDBACK_TABLE=$FEEDBACK_TABLE \
+                            --build-arg OBJECT_KEY=$OBJECT_KEY \
+                            --build-arg SCREENING_TABLE=$SCREENING_TABLE \
+                            --build-arg DEPLOYMENT_NAME=$DEPLOYMENT_NAME \
+                            --build-arg AWS_BUCKET_NAME=$AWS_BUCKET_NAME \
+                            --build-arg OPENAI_API_VERSION=$OPENAI_API_VERSION \
+                            --build-arg OPENAI_API_KEY=$OPENAI_API_KEY \
+                            --build-arg OPENAI_API_BASE=$OPENAI_API_BASE \
+                            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+      
 
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def

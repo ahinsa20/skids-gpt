@@ -58,6 +58,8 @@ class FeedbackService:
             items = self.db.getAllItems(os.getenv("FEEDBACK_TABLE"))
 
             for index in range(len(items)):
+                print(items[index], flush=True)
+                items[index]["feedback"] = str(items[index]["feedback"])
                 items[index] = self.removeKeys(items[index])
 
             return {"status": 200, "message": "Success", "response": items}
@@ -68,9 +70,23 @@ class FeedbackService:
     def getFeedbackById(self, feedbackId):
         try:
 
-            item = self.db.getItemByKey(os.getenv("FEEDBACK_TABLE"), {'id': feedbackId})
-            print(item)
+            queryParams = {
+                'KeyConditionExpression': '#id = :id',
+                'ExpressionAttributeNames': {
+                    '#id': 'id'
+                },
+                'ExpressionAttributeValues': {
+                    ':id': feedbackId
+                }
+            }
+
+            item = self.db.getItemByKey(os.getenv("FEEDBACK_TABLE"), queryParams)
+            
+            if item is None:
+                return {"status": 400, "message": "feedback not found"}
+            
             item = self.removeKeys(item)
+            item["feedback"] = str(item["feedback"])
             return {"status": 200, "message": "Success", "response": item}
 
         except Exception as e:

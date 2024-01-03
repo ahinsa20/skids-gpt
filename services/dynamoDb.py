@@ -30,9 +30,11 @@ class DynamoDB:
         response = table.scan()
         return response.get('Items', [])
 
-    def getItemByKey(self, tableName, key):
+    def getItemByKey(self, tableName, queryParams):
         table = self.connectToTable(tableName)
-        response = table.get_item(Key=key)
+        response = table.query(**queryParams)
+        if "Items" in response:
+            return response.get("Items")[0]
         return response.get('Item', None)
 
     def updateFeedback(self, tableName, feedbackId, feedback):

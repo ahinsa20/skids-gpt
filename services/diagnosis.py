@@ -2,6 +2,7 @@ import os
 import boto3
 import pickle
 import openai
+import logging
 from uuid import uuid4
 from datetime import datetime
 from json import loads, dumps
@@ -18,26 +19,34 @@ class DiagnosisService:
 
     def __init__(self) -> None:
 
+        print("dynamo db connecting .......", flush=True)
         self.db = DynamoDB(
             regionName = os.getenv("AWS_REGION"), 
             accessKey = os.getenv("AWS_ACCESS_KEY"), 
             secretAccessKey = os.getenv("AWS_SECRET_KEY")
         )
+        print("dynamo db connected .......", flush=True)
+
         openai.api_key = os.getenv("OPENAI_API_KEY")
         openai.api_type = os.getenv("OPENAI_API_TYPE")
         openai.api_base = os.getenv("OPENAI_API_BASE")
         openai.api_version = os.getenv("OPENAI_API_VERSION")
+
+        print("s3 connecting .......", flush=True)
         s3_client = boto3.client(
             's3', 
             aws_access_key_id = os.getenv("AWS_ACCESS_KEY"), 
             aws_secret_access_key = os.getenv("AWS_SECRET_KEY")
         )
+        print("s3 connected .......", flush=True)
+
         response = s3_client.get_object(Bucket = os.getenv("AWS_BUCKET_NAME"), Key = os.getenv("OBJECT_KEY"))
         fileBytes = response['Body'].read()
 
         self.chatHistory = []
         self.generalChat = []
         self.index = pickle.loads(fileBytes)
+        print("embeddings load successfully...... with type", type(self.index), flush=True)
 
         # load get summary model
         self.llm = AzureChatOpenAI(deployment_name = os.getenv("DEPLOYMENT_NAME"), openai_api_version = os.getenv("OPENAI_API_VERSION"))
@@ -85,7 +94,16 @@ class DiagnosisService:
         try:
 
             # file = open("./dynamoRecords/"+fileMap[screeningId], "r").read()
-            file = self.db.getItemByKey(os.getenv("SCREENING_TABLE"), {"screeningId": screeningId})
+            queryParams = {
+                'KeyConditionExpression': '#sid = :sid',
+                'ExpressionAttributeNames': {
+                    '#sid': 'screeningId'
+                },
+                'ExpressionAttributeValues': {
+                    ':sid': screeningId
+                }
+            }
+            file = self.db.getItemByKey(os.getenv("SCREENING_TABLE"), queryParams)
 
             if file is None:
                 return {"status": 400, "message": "report not found"}
@@ -133,7 +151,7 @@ class DiagnosisService:
             self.db.storeItem(os.getenv("SUMMARY_TABLE"), document)
 
             questions = self.__questionSuggestion.run({"context": answer}).split("\n")
-            return {"status": 200, "message": "Success", "response": {"summary": answer, "questions": questions, "summaryId": document["id"]}}
+            return {"status": 200, "message": "Success", "response": {"summary": answer, "questions": questions}}
 
         except Exception as e:
             return {"status": 400, "message": str(e)}
@@ -142,7 +160,16 @@ class DiagnosisService:
 
         try:
 
-            file = self.db.getItemByKey(os.getenv("SCREENING_TABLE"), {"screeningId": body["screeningId"]})
+            queryParams = {
+                'KeyConditionExpression': '#sid = :sid',
+                'ExpressionAttributeNames': {
+                    '#sid': 'screeningId'
+                },
+                'ExpressionAttributeValues': {
+                    ':sid': body["screeningId"]
+                }
+            }
+            file = self.db.getItemByKey(os.getenv("SCREENING_TABLE"), queryParams)
             if file is None:
                 return {"status": 400, "message": "report not found"}
 
@@ -151,7 +178,7 @@ class DiagnosisService:
             file["dentalAssessment"]["DMFTIndex"] = str(file["dentalAssessment"]["DMFTIndex"])
 
             docs = [Document(page_content=dumps(file))]
-            response = self.index.max_marginal_relevance_search(body["userQuery"], lambda_mult=0.5)
+            response = self.index.similarity_search(body["userQuery"], k=5)
             context = ". ".join([res.page_content for res in response])
 
             # summary = self.db.getItemByKey(os.getenv("SUMMARY_TABLE"), {"id": body["summaryId"]})
@@ -186,6 +213,7 @@ class DiagnosisService:
             return {"status": 200, "message": "Success", "response": {"answer": answer, "questions": questions}}
 
         except Exception as e:
+            logging.exception(e)
             return {"status": 400, "message": str(e)}
 
     def getAllQNA(self):
@@ -204,7 +232,20 @@ class DiagnosisService:
     def getQnaById(self, qnaId):
         try:
 
-            item= self.db.getItemByKey(os.getenv("QNA_TABLE"), {'id': qnaId})
+            queryParams = {
+                'KeyConditionExpression': '#id = :id',
+                'ExpressionAttributeNames': {
+                    '#id': 'id'
+                },
+                'ExpressionAttributeValues': {
+                    ':id': qnaId
+                }
+            }
+            item= self.db.getItemByKey(os.getenv("QNA_TABLE"), queryParams)
+
+            if item is None:
+                return {"status": 400, "message": "question not found"}
+
             item = self.removeKeys(item)
             return {"status": 200, "message": "Success", "response": item}
 

@@ -221,9 +221,25 @@ class DiagnosisService:
     def getAllQNA(self, screeningId):
         try:
 
-            items = self.db.getAllItems(os.getenv("QNA_TABLE"))
-            items = list(filter((lambda x: x["screeningId"] == screeningId), items))
+            # items = self.db.getAllItems(os.getenv("QNA_TABLE"))
+            # items = list(filter((lambda x: x["screeningId"] == screeningId), items))
 
+            table = self.db.connectToTable(os.getenv("QNA_TABLE"))
+            items = table.scan(
+                TableName=os.getenv("QNA_TABLE"),
+                FilterExpression='#screeningId = :screeningId',
+                ExpressionAttributeNames={
+                    '#screeningId': "screeningId"
+                },
+                ExpressionAttributeValues={
+                    ':screeningId': screeningId
+                }
+            )
+
+            if items["Items"] is not None and items["Items"] == []:
+                return {"status": 400, "message": "QNA's not found"}
+
+            items = items["Items"]
             for index in range(len(items)):
                 items[index] = self.removeKeys(items[index])
 
@@ -259,8 +275,25 @@ class DiagnosisService:
     def getAllDiagnosisSummary(self, screeningId):
         try:
 
-            items = self.db.getAllItems(os.getenv("SUMMARY_TABLE"))
-            items = list(filter((lambda x: x["screeningId"] == screeningId), items))
+            # items = self.db.getAllItems(os.getenv("SUMMARY_TABLE"))
+            # items = list(filter((lambda x: x["screeningId"] == screeningId), items))
+
+            table = self.db.connectToTable(os.getenv("SUMMARY_TABLE"))
+            items = table.scan(
+                TableName=os.getenv("SUMMARY_TABLE"),
+                FilterExpression='#screeningId = :screeningId',
+                ExpressionAttributeNames={
+                    '#screeningId': "screeningId"
+                },
+                ExpressionAttributeValues={
+                    ':screeningId': screeningId
+                }
+            )
+
+            if items["Items"] is not None and items["Items"] == []:
+                return {"status": 400, "message": "summary's not found"}
+
+            items = items["Items"]
 
             for index in range(len(items)):
                 items[index] = self.removeKeys(items[index])

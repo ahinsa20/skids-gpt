@@ -55,9 +55,25 @@ class FeedbackService:
     def getAllFeedback(self, qnaId):
         try:
 
-            items = self.db.getAllItems(os.getenv("FEEDBACK_TABLE"))
-            items = list(filter((lambda x: x["qnaId"] == qnaId if "qnaId" in x else x), items))
+            # items = self.db.getAllItems(os.getenv("FEEDBACK_TABLE"))
+            # items = list(filter((lambda x: x["qnaId"] == qnaId if "qnaId" in x else x), items))
 
+            table = self.db.connectToTable(os.getenv("FEEDBACK_TABLE"))
+            items = table.scan(
+                TableName=os.getenv("FEEDBACK_TABLE"),
+                FilterExpression='#qnaId = :qnaId',
+                ExpressionAttributeNames={
+                    '#qnaId': "qnaId"
+                },
+                ExpressionAttributeValues={
+                    ':qnaId': qnaId
+                }
+            )
+            
+            if items["Items"] is not None and items["Items"] == []:
+                return {"status": 400, "message": "Feedbacks not found"}
+
+            items = items["Items"]
             for index in range(len(items)):
                 print(items[index], flush=True)
                 items[index]["feedback"] = str(items[index]["feedback"])

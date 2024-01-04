@@ -40,6 +40,8 @@ class DiagnosisService:
         )
         print("s3 connected .......", flush=True)
 
+        print('os.getenv("AWS_BUCKET_NAME")', os.getenv("AWS_BUCKET_NAME", ""), flush=True)
+        print('os.getenv("OBJECT_KEY")', os.getenv("OBJECT_KEY", ""), flush=True)
         response = s3_client.get_object(Bucket = os.getenv("AWS_BUCKET_NAME"), Key = os.getenv("OBJECT_KEY"))
         fileBytes = response['Body'].read()
 

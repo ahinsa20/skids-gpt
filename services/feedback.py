@@ -96,7 +96,6 @@ class FeedbackService:
 
             table = self.db.connectToTable(os.getenv("FEEDBACK_TABLE"))
             items = table.scan(
-                TableName=os.getenv("FEEDBACK_TABLE"),
                 FilterExpression='#qnaId = :qnaId',
                 ExpressionAttributeNames={
                     '#qnaId': "qnaId"

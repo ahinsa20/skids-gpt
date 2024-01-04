@@ -247,7 +247,6 @@ class DiagnosisService:
 
             table = self.db.connectToTable(os.getenv("QNA_TABLE"))
             items = table.scan(
-                TableName=os.getenv("QNA_TABLE"),
                 FilterExpression='#screeningId = :screeningId',
                 ExpressionAttributeNames={
                     '#screeningId': "screeningId"
@@ -301,7 +300,6 @@ class DiagnosisService:
 
             table = self.db.connectToTable(os.getenv("SUMMARY_TABLE"))
             items = table.scan(
-                TableName=os.getenv("SUMMARY_TABLE"),
                 FilterExpression='#screeningId = :screeningId',
                 ExpressionAttributeNames={
                     '#screeningId': "screeningId"

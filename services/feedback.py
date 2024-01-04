@@ -42,7 +42,6 @@ class FeedbackService:
 
             table = self.db.connectToTable(os.getenv("QNA_TABLE"))
             items = table.scan(
-                TableName=os.getenv("QNA_TABLE"),
                 FilterExpression='#id = :id',
                 ExpressionAttributeNames={
                     '#id': "id"
@@ -57,7 +56,6 @@ class FeedbackService:
 
             table = self.db.connectToTable(os.getenv("FEEDBACK_TABLE"))
             items = table.scan(
-                TableName=os.getenv("FEEDBACK_TABLE"),
                 FilterExpression='#qnaId = :qnaId',
                 ExpressionAttributeNames={
                     '#qnaId': "qnaId"
@@ -104,7 +102,7 @@ class FeedbackService:
                     ':qnaId': qnaId
                 }
             )
-            
+
             if items["Items"] is not None and items["Items"] == []:
                 return {"status": 400, "message": "Feedbacks not found"}
 

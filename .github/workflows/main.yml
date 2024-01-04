@@ -50,6 +50,8 @@ env:
   OPENAI_API_BASE: '${{ secrets.OPENAI_API_BASE }}'
   AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
   AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+  COGNITO_USER_CLIENT_ID: '${{ secrets.COGNITO_USER_CLIENT_ID }}'
+  COGNITO_USER_POOL_ID: '${{ secrets.COGNITO_USER_POOL_ID }}'
 
 permissions:
   contents: read
@@ -95,6 +97,8 @@ jobs:
                             --build-arg AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
                             --build-arg AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
                             --build-arg AWS_REGION=$AWS_REGION \
+                            --build-arg COGNITO_USER_CLIENT_ID=$COGNITO_USER_CLIENT_ID \
+                            --build-arg COGNITO_USER_POOL_ID=$COGNITO_USER_POOL_ID \
                             --build-arg OPENAI_API_VERSION=$OPENAI_API_VERSION \
                             --build-arg OPENAI_API_KEY=$OPENAI_API_KEY \
                             --build-arg OPENAI_API_BASE=$OPENAI_API_BASE \

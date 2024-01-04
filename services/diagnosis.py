@@ -40,17 +40,13 @@ class DiagnosisService:
         )
         print("s3 connected .......", flush=True)
 
-        print('os.getenv("AWS_BUCKET_NAME")', os.getenv("AWS_BUCKET_NAME", ""), flush=True)
-        print('os.getenv("OBJECT_KEY")', os.getenv("OBJECT_KEY", ""), flush=True)
-        print('os.getenv("AWS_ACCESS_KEY")', os.getenv("AWS_ACCESS_KEY", ""), flush=True)
-        print('os.getenv("AWS_SECRET_KEY")', os.getenv("AWS_SECRET_KEY", ""), flush=True)
         response = s3_client.get_object(Bucket = os.getenv("AWS_BUCKET_NAME"), Key = os.getenv("OBJECT_KEY"))
         fileBytes = response['Body'].read()
 
         self.chatHistory = []
         self.generalChat = []
         self.index = pickle.loads(fileBytes)
-        print("embeddings load successfully...... with type", type(self.index), flush=True)
+        print("embeddings load successfully......",flush=True)
 
         # load get summary model
         self.llm = AzureChatOpenAI(deployment_name = os.getenv("DEPLOYMENT_NAME"), openai_api_version = os.getenv("OPENAI_API_VERSION"))

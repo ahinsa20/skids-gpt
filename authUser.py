@@ -25,6 +25,7 @@ class Authentication:
                 app_client_id = self.clientId,
                 testmode=False
             )
+            print("auth successfull", flush=True)
             return {"status": 200}
 
         except Exception as e:

@@ -142,14 +142,31 @@ class DiagnosisService:
             answer += f"You can refer to {file.get('firstName', 'Patient')}'s visual report and converse with me to explore details about the conditions.\n\n"
             answer += "I can also see you are yet to complete general assessment for you kid. You can interact me to learn how regular assessment of these \
                 conditions is vital for a healthy child."
- 
-            document = {
-                "id": str(uuid4()),
-                "screeningId": screeningId,
-                "summary": answer,
-                "createdAt": str(datetime.now())
-            }
-            self.db.storeItem(os.getenv("SUMMARY_TABLE"), document)
+
+            table = self.db.connectToTable(os.getenv("SUMMARY_TABLE"))
+            items = table.scan(
+                TableName=os.getenv("SUMMARY_TABLE"),
+                FilterExpression='#screeningId = :screeningId',
+                ExpressionAttributeNames={
+                    '#screeningId': "screeningId"
+                },
+                ExpressionAttributeValues={
+                    ':screeningId': screeningId
+                }
+            )
+
+            if items["Items"] is not None and items["Items"] == []:
+                document = {
+                    "id": str(uuid4()),
+                    "screeningId": screeningId,
+                    "summary": answer,
+                    "createdAt": str(datetime.now())
+                }
+                self.db.storeItem(os.getenv("SUMMARY_TABLE"), document)
+
+            else:
+                items = items["Items"][0]
+                self.db.updateSummary(os.getenv("SUMMARY_TABLE"), items["id"], answer)
 
             questions = self.__questionSuggestion.run({"context": answer}).split("\n")
             return {"status": 200, "message": "Success", "response": {"summary": answer, "questions": questions}}

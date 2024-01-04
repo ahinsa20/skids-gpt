@@ -39,14 +39,50 @@ class FeedbackService:
 
     def addFeedback(self, body):
         try:
+
+            table = self.db.connectToTable(os.getenv("QNA_TABLE"))
+            items = table.scan(
+                TableName=os.getenv("QNA_TABLE"),
+                FilterExpression='#id = :id',
+                ExpressionAttributeNames={
+                    '#id': "id"
+                },
+                ExpressionAttributeValues={
+                    ':id': body["qnaId"]
+                }
+            )
+
+            if items["Items"] is not None and items["Items"] == []:
+                return {"status": 400, "message": "invalid qnaId"}
+
+            table = self.db.connectToTable(os.getenv("FEEDBACK_TABLE"))
+            items = table.scan(
+                TableName=os.getenv("FEEDBACK_TABLE"),
+                FilterExpression='#qnaId = :qnaId',
+                ExpressionAttributeNames={
+                    '#qnaId': "qnaId"
+                },
+                ExpressionAttributeValues={
+                    ':qnaId': body["qnaId"]
+                }
+            )
+
+            if items["Items"] is not None and items["Items"] == []:
+                print("feedback not present", flush=True)
+                document = {
+                    "id": str(uuid4()).replace("-",""),
+                    "qnaId": body["qnaId"],
+                    "feedback": body["feedback"],
+                    "createdAt": str(datetime.now())
+                }
+                self.db.storeItem(os.getenv("FEEDBACK_TABLE"), document)
             
-            document = {
-                "id": str(uuid4()).replace("-",""),
-                "qnaId": body["qnaId"],
-                "feedback": body["feedback"],
-                "createdAt": str(datetime.now())
-            }
-            self.db.storeItem(os.getenv("FEEDBACK_TABLE"), document)
+            else:
+                print("feedback present", flush=True)
+
+                items = items["Items"][0]
+                self.db.updateFeedback(os.getenv("FEEDBACK_TABLE"), items["id"], body["feedback"])
+
             return {"status": 200, "message": "Success"}
 
         except Exception as e:

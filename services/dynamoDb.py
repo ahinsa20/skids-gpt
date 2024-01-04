@@ -53,4 +53,21 @@ class DynamoDB:
 
         updated_item = response.get('Attributes', None)
         return updated_item
+    
+    def updateSummary(self, tableName, summaryId, summary):
+        table = self.connectToTable(tableName)
+        update_expression = "SET #summary = :new_summary"
+        expression_attribute_values = {":new_summary": summary}
+        expression_attribute_names = {"#summary": "summary"}
+
+        response = table.update_item(
+            Key={'id': summaryId},
+            UpdateExpression=update_expression,
+            ExpressionAttributeValues=expression_attribute_values,
+            ExpressionAttributeNames=expression_attribute_names,
+            ReturnValues="UPDATED_NEW"
+        )
+
+        updated_item = response.get('Attributes', None)
+        return updated_item
 
